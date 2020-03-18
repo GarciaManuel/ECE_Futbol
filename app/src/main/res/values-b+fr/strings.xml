@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ECE_Futbol</string>
+    <string name="photo_init_txt">Prenez une photo</string>
+    <string name="photo_btn">Photo</string>
+    <string name="photo_success">Parfait!</string>
+    <string name="photo_fail">Oups... pardon!</string>
+    <string name="lang">Francias</string>
+    <string name="match">Joue Photo</string>
+</resources>
