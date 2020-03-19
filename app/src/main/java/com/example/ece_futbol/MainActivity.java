@@ -9,14 +9,14 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button photos;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        photos = findViewById(R.id.takePicture);
+        Button photos = findViewById(R.id.takePicture);
         photos.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -25,6 +25,16 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(registerActivity);
                     }
         });
+
+        Button maps = findViewById(R.id.matchMap);
+        maps.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent mapsActivity = new Intent(MainActivity.this, Maps.class);
+                        startActivity(mapsActivity);
+                    }
+                });
 
 
     }

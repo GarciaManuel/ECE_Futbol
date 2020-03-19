@@ -6,4 +6,5 @@
     <string name="photo_fail">Oups... try later!</string>
     <string name="lang">English</string>
     <string name="match">Match Photo</string>
+    <string name="address">Address</string>
 </resources>
