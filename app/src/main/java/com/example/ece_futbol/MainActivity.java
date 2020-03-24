@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent registerActivity = new Intent(MainActivity.this, Photos.class);
-                        startActivity(registerActivity);
+                        Intent phtosActivity = new Intent(MainActivity.this, Photos.class);
+                        startActivity(phtosActivity);
                     }
         });
 
@@ -33,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         Intent mapsActivity = new Intent(MainActivity.this, Maps.class);
                         startActivity(mapsActivity);
+                    }
+                });
+
+        Button register = findViewById(R.id.register);
+        register.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent registerActivity = new Intent(MainActivity.this, Register.class);
+                        startActivity(registerActivity);
                     }
                 });
 

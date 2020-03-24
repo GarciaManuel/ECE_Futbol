@@ -7,4 +7,20 @@
     <string name="lang">English</string>
     <string name="match">Match Photo</string>
     <string name="address">Address</string>
+    <string name="fourHits">Four Hits</string>
+    <string name="assistedHit">Assisted Hit</string>
+    <string name="doubleContact">Double Contact</string>
+    <string name="catchLift">Catch / Lift</string>
+    <string name="serviceOrder">Service Order</string>
+    <string name="foot">Foot</string>
+    <string name="netTouch">Net Touch</string>
+    <string name="player1">Player 1</string>
+    <string name="player2">Player 2</string>
+    <string name="teamA">Team A</string>
+    <string name="teamB">Team B</string>
+    <string name="teamAwins">Team A Wins</string>
+    <string name="teamBwins">Team B Wins</string>
+    <string name="score">Score</string>
+    <string name="faultsPlayer">Faults per Player</string>
+    <string name="faultsTeam">Faults per Team</string>
 </resources>

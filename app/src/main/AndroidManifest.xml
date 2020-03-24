@@ -20,7 +20,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Maps"></activity>
+        <activity android:name=".Register"></activity>
+        <activity android:name=".Maps" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
