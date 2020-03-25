@@ -2,6 +2,7 @@ package com.example.ece_futbol;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -37,6 +38,7 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
     Button netTouchTeamB;
 
     String [] faultsPlayer;
+    String [] faultsPlayerText;
     ToggleButton toggle;
 
     private  static final String STATE_PLAYERA = "playerA";
@@ -62,6 +64,20 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         setContentView(R.layout.activity_register);
 
         faultsPlayer = new String[]{"assistedHit", "doubleContact", "catchLift", "foot", "netTouch"};
+        faultsPlayerText = new String[5];
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            faultsPlayerText[0] = getResources().getString(R.string.assistedHit);
+            faultsPlayerText[1] = getResources().getString(R.string.doubleContact);
+            faultsPlayerText[2] = getResources().getString(R.string.catchLift);
+            faultsPlayerText[3] = getResources().getString(R.string.foot);
+            faultsPlayerText[4] = getResources().getString(R.string.netTouch);
+        } else {
+            faultsPlayerText[0] = getResources().getString(R.string.assistedHitLan);
+            faultsPlayerText[1] = getResources().getString(R.string.doubleContactLan);
+            faultsPlayerText[2] = getResources().getString(R.string.catchLiftLan);
+            faultsPlayerText[3] = getResources().getString(R.string.footLan);
+            faultsPlayerText[4] = getResources().getString(R.string.netTouchLan);
+        }
 
         playerTeamA = "0";
         playerTeamB = "0";
@@ -275,27 +291,27 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         if (objectId.equals("pointsTeamA")) {
             pointsTeamA.setText(Integer.toString(value));
         }  else if (objectId.equals("assistedHitTeamA")) {
-            assistedHitTeamA.setText(getResources().getString(R.string.assistedHit) + ": " + value);
+            assistedHitTeamA.setText(faultsPlayerText[0] + ": " + value);
         } else if (objectId.equals("doubleContactTeamA")) {
-            doubleContactTeamA.setText(getResources().getString(R.string.doubleContact) + ": " + value);
+            doubleContactTeamA.setText(faultsPlayerText[1] + ": " + value);
         } else if (objectId.equals("catchLiftTeamA")) {
-            catchLiftTeamA.setText(getResources().getString(R.string.catchLift) + ": " + value);
+            catchLiftTeamA.setText(faultsPlayerText[2] + ": " + value);
         } else if (objectId.equals("footTeamA")) {
-            footTeamA.setText(getResources().getString(R.string.foot) + ": " + value);
+            footTeamA.setText(faultsPlayerText[3] + ": " + value);
         } else if (objectId.equals("netTouchTeamA")) {
-            netTouchTeamA.setText(getResources().getString(R.string.netTouch) + ": " + value);
+            netTouchTeamA.setText(faultsPlayerText[4] + ": " + value);
         } else if (objectId.equals("pointsTeamB")) {
             pointsTeamB.setText(Integer.toString(value));
         } else if (objectId.equals("assistedHitTeamB")) {
-            assistedHitTeamB.setText(getResources().getString(R.string.assistedHit) + ": " + value);
+            assistedHitTeamB.setText(faultsPlayerText[0] + ": " + value);
         } else if (objectId.equals("doubleContactTeamB")) {
-            doubleContactTeamB.setText(getResources().getString(R.string.doubleContact) + ": " + value);
+            doubleContactTeamB.setText(faultsPlayerText[1] + ": " + value);
         } else if (objectId.equals("catchLiftTeamB")) {
-            catchLiftTeamB.setText(getResources().getString(R.string.catchLift) + ": " + value);
+            catchLiftTeamB.setText(faultsPlayerText[2] + ": " + value);
         } else if (objectId.equals("footTeamB")) {
-            footTeamB.setText(getResources().getString(R.string.foot) + ": " + value);
+            footTeamB.setText(faultsPlayerText[3] + ": " + value);
         } else if (objectId.equals("netTouchTeamB")) {
-            netTouchTeamB.setText(getResources().getString(R.string.netTouch) + ": " + value);
+            netTouchTeamB.setText(faultsPlayerText[4] + ": " + value);
         } else if (objectId.equals("fourHits")) {
             fourHits.setText(getResources().getString(R.string.fourHits) + ": " + value);
         } else if (objectId.equals("serviceOrder")) {
@@ -392,10 +408,8 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
                     }
                 }
                 if (attribute.equals("date") || attribute.equals("name")) {
-//                    updateValue(dis.readUTF(), attribute, inputStrings );
                 } else {
                     value = dis.readInt();
-//                    updateValue(dis.readInt(), inputStrings[0]);
                 }
                 out.close();
                 s.close();

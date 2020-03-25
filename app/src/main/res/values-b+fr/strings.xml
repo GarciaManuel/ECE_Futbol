@@ -8,12 +8,17 @@
     <string name="match">Joue Photo</string>
     <string name="address">Direction</string>
     <string name="fourHits">Quatre Coups Sûrs</string>
-    <string name="assistedHit">Coups Assistés</string>
-    <string name="doubleContact">Double Contact</string>
-    <string name="catchLift">Remontée</string>
     <string name="serviceOrder">Demande de Service</string>
-    <string name="foot">Pied</string>
-    <string name="netTouch">Toucher Net</string>
+    <string name="assistedHitLan">Coups Assistés</string>
+    <string name="doubleContactLan">Double Contact</string>
+    <string name="catchLiftLan">Remontée</string>
+    <string name="footLan">Pied</string>
+    <string name="netTouchLan">Toucher Net</string>
+    <string name="assistedHit">C.A.</string>
+    <string name="doubleContact">D.C.</string>
+    <string name="catchLift">R.</string>
+    <string name="foot">P.</string>
+    <string name="netTouch">T.N.</string>
     <string name="player1">Jouer 1</string>
     <string name="player2">Jouer 2</string>
     <string name="teamA">Équipe A</string>
@@ -23,4 +28,7 @@
     <string name="score">Points</string>
     <string name="faultsPlayer">Fautes par Jouer</string>
     <string name="faultsTeam">Fautes par Équipe</string>
+    <string name="teams">Équipes</string>
+    <string name="players">Jouers</string>
+    <string name="fault">Faute</string>
 </resources>
