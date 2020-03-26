@@ -23,6 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
+                android:onClick="onFragmentChoose"
                 android:text="@string/teams" />
 
             <RadioButton
@@ -30,11 +31,12 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:onClick="onFragmentChoose"
                 android:text="@string/players" />
         </RadioGroup>
 
         <FrameLayout
-            android:id="@+id/teamsFragment"
+            android:id="@+id/statsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="1dp"

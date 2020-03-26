@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +37,6 @@ import java.net.UnknownHostException;
  */
 public class TeamsFragment extends Fragment {
     private static final String ARG_MATCH_NUM = "matchNum";
-//    private static String currentMatch;
-
     private String currentMatch;
 
     private OnFragmentInteractionListener mListener;
@@ -48,6 +47,8 @@ public class TeamsFragment extends Fragment {
     private TextView fourHitsTeamB;
     private TextView serviceOrderTeamB;
     private TextView serviceOrderTeamA;
+    private ImageView winTA;
+    private ImageView winTB;
 
     private GraphView graph;
 
@@ -83,6 +84,8 @@ public class TeamsFragment extends Fragment {
        fourHitsTeamB = view.findViewById(R.id.fourHitsTeamB);
        serviceOrderTeamA = view.findViewById(R.id.serviceOrderTeamA);
        serviceOrderTeamB = view.findViewById(R.id.serviceOrderTeamB);
+       winTA = view.findViewById(R.id.winTA);
+       winTB = view.findViewById(R.id.winTB);
 
        graph = (GraphView) view.findViewById(R.id.graph);
        graph.setVisibility(View.VISIBLE);
@@ -94,6 +97,7 @@ public class TeamsFragment extends Fragment {
            initMatchServer("serviceOrderTeam" + teamChar, "T", currentMatch, "serviceOrder", Boolean.toString(false), Integer.toString(i));
        }
        initMatchServer("", "M", currentMatch, "allPoints", Boolean.toString(false));
+       initMatchServer("", "M", currentMatch, "winnerTeam", Boolean.toString(false));
 
         return view;
     }
@@ -189,6 +193,14 @@ public class TeamsFragment extends Fragment {
         }
     }
 
+    private void setCrown(int value) {
+        if (value == 1) {
+            winTA.setImageDrawable(null);
+        } else if (value == 0) {
+            winTB.setImageDrawable(null);
+        }
+    }
+
     private  class MatchServer extends AsyncTask<String, Void, Void> {
         private int value;
         private String name;
@@ -220,10 +232,12 @@ public class TeamsFragment extends Fragment {
                 if (attribute.equals("name")) {
                     dos.writeInt(Integer.parseInt(inputStrings[5]));
                     name = dis.readUTF();
+                } else if (attribute.equals("winnerTeam"))  {
+                    value = dis.readInt();
                 } else if (attribute.equals("fourHits") || attribute.equals("serviceOrder")) {
                     dos.writeInt(Integer.parseInt(inputStrings[5]));
                     value = dis.readInt();
-                } else {
+                } else if (attribute.equals("allPoints")) {
                     scores = new int[]{dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt(),
                             dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt()};
                 }
@@ -243,6 +257,8 @@ public class TeamsFragment extends Fragment {
                 updateValue(name, objectId);
             } else if (attribute.equals("allPoints")) {
                 setGraph(scores);
+            } else if (attribute.equals("winnerTeam")) {
+                setCrown(value);
             } else {
                 updateValue(value, objectId);
             }

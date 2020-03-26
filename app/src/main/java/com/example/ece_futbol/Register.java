@@ -317,7 +317,7 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         } else if (objectId.equals("serviceOrder")) {
             serviceOrder.setText(getResources().getString(R.string.serviceOrder) + ": " + value);
         } else if (objectId.equals("toggle")) {
-            if (value == 0) {
+            if (value <= 0) {
                 toggle.setChecked(false);
             } else {
                 toggle.setChecked(true);
@@ -368,7 +368,7 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         }
 
         private void setAttribute(char objectType, int matchNum, String attribute, String[] inputStrings) {
-            value = -1;
+            value = -2;
             try {
                 Socket s = new Socket("10.0.2.2", 9876);
                 DataOutputStream dos = new DataOutputStream(s.getOutputStream());
@@ -417,13 +417,13 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-                value = -1;
+                value = -2;
             }
         }
 
         @Override
         protected void onPostExecute(Void result) {
-            if (value != -1) {
+            if (value != -2) {
                 updateValue(value, objectId);
             }
         }

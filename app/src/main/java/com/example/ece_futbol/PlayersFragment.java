@@ -2,6 +2,7 @@ package com.example.ece_futbol;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,46 +10,53 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PlayersFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PlayersFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlayersFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_MATCH_NUM = "matchNum";
+    private String currentMatch;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private TextView player1TeamAName;
+    private TextView player2TeamAName;
+    private TextView player1TeamBName;
+    private TextView player2TeamBName;
+    private ImageView winP1TA;
+    private ImageView winP2TA;
+    private ImageView winP1TB;
+    private ImageView winP2TB;
+
+    private BarChart teamABarChart;
+    private BarChart teamBBarChart;
 
     private OnFragmentInteractionListener mListener;
+
+    private MatchServer matchServer;
 
     public PlayersFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PlayersFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PlayersFragment newInstance(String param1, String param2) {
+    public static PlayersFragment newInstance(String param1) {
         PlayersFragment fragment = new PlayersFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_MATCH_NUM, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,24 +65,48 @@ public class PlayersFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            currentMatch = getArguments().getString(ARG_MATCH_NUM);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_players, container, false);
+        View view = inflater.inflate(R.layout.fragment_players, container, false);
+
+        player1TeamAName = view.findViewById(R.id.player1TeamAName);
+        player2TeamAName = view.findViewById(R.id.player2TeamAName);
+        player1TeamBName = view.findViewById(R.id.player1TeamBName);
+        player2TeamBName = view.findViewById(R.id.player2TeamBName);
+        winP1TA = view.findViewById(R.id.winP1TA);
+        winP2TA = view.findViewById(R.id.winP2TA);
+        winP1TB = view.findViewById(R.id.winP1TB);
+        winP2TB = view.findViewById(R.id.winP2TB);
+        teamABarChart = (BarChart) view.findViewById(R.id.teamABarChart);
+        teamBBarChart = (BarChart) view.findViewById(R.id.teamBBarChart);
+
+        for (int i = 0; i < 2; i++) {
+            initMatchServer(Integer.toString(i), "T", currentMatch, "allFaults", Boolean.toString(false),Integer.toString(i));
+            initMatchServer(Integer.toString(i), "T", currentMatch, "bestPlayer", Boolean.toString(false),Integer.toString(i));
+            initMatchServer(i + "0", "P", currentMatch, "name", Boolean.toString(false), Integer.toString(i), "0");
+            initMatchServer(i + "1", "P", currentMatch, "name", Boolean.toString(false), Integer.toString(i), "1");
+        }
+
+
+        return view;
+    }
+
+    private void initMatchServer(String...inputString) {
+        matchServer = new PlayersFragment.MatchServer();
+        matchServer.execute(inputString);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+//    public void onButtonPressed(Uri uri) {
+//        if (mListener != null) {
+//            mListener.onFragmentInteraction(uri);
+//        }
+//    }
 
     @Override
     public void onAttach(Context context) {
@@ -93,18 +125,138 @@ public class PlayersFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    private void setGraph(int[] values, String objectId) {
+        List<BarEntry> bargroup1 = new ArrayList<>();
+        bargroup1.add(new BarEntry(values[0], 0));
+        bargroup1.add(new BarEntry(values[1], 1));
+        bargroup1.add(new BarEntry(values[2], 2));
+        bargroup1.add(new BarEntry(values[3], 3));
+        bargroup1.add(new BarEntry(values[4], 4));
+
+        List<BarEntry> bargroup2 = new ArrayList<>();
+        bargroup2.add(new BarEntry(values[5], 0));
+        bargroup2.add(new BarEntry(values[6], 1));
+        bargroup2.add(new BarEntry(values[7], 2));
+        bargroup2.add(new BarEntry(values[8], 3));
+        bargroup2.add(new BarEntry(values[9], 4));
+
+        BarDataSet barDataSet1 = new BarDataSet(bargroup1, "Player 1");
+//barDataSet1.setColor(Color.rgb(0, 155, 0));
+        barDataSet1.setColors(ColorTemplate.COLORFUL_COLORS);
+
+// creating dataset for Bar Group 2
+        BarDataSet barDataSet2 = new BarDataSet(bargroup2, "Player 2");
+        barDataSet2.setColors(ColorTemplate.COLORFUL_COLORS);
+
+        List<String> labels = new ArrayList<String>();
+        labels.add(getResources().getString(R.string.assistedHit));
+        labels.add(getResources().getString(R.string.doubleContact));
+        labels.add(getResources().getString(R.string.catchLift));
+        labels.add(getResources().getString(R.string.foot));
+        labels.add(getResources().getString(R.string.netTouch));
+
+        List<IBarDataSet> dataSets = new ArrayList<>();  // combined all dataset into an arraylist
+        dataSets.add(barDataSet1);
+        dataSets.add(barDataSet2);
+
+        BarData data = new BarData(labels, dataSets);
+        if (objectId.equals("0")) {
+            teamABarChart.setData(data);
+            teamABarChart.invalidate();
+            teamABarChart.refreshDrawableState();
+        } else if (objectId.equals("1")) {
+           teamBBarChart.setData(data);
+           teamBBarChart.invalidate();
+           teamBBarChart.refreshDrawableState();
+        }
+    }
+
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+//        // TODO: Update argument type and name
+//        void onFragmentInteraction(Uri uri);
+    }
+
+    private void updateValue(String value, String objectId) {
+        if (objectId.equals("00")) {
+            player1TeamAName.setText(value);
+        } else if (objectId.equals("01")) {
+            player2TeamAName.setText(value);
+        } else if (objectId.equals("10")) {
+            player1TeamBName.setText(value);
+        } else if (objectId.equals("11")) {
+            player2TeamBName.setText(value);
+        }
+    }
+
+    private void setCrown(int value, String objectId) {
+        if (objectId.equals("0") && value == 1) {
+            winP1TA.setImageDrawable(null);
+        } else if (objectId.equals("0") && value == 0) {
+            winP2TA.setImageDrawable(null);
+        } else if (objectId.equals("1") && value == 1) {
+            winP1TB.setImageDrawable(null);
+        } else if (objectId.equals("1") && value == 0) {
+            winP2TB.setImageDrawable(null);
+        }
+    }
+
+    private  class MatchServer extends AsyncTask<String, Void, Void> {
+        private int value;
+        private String name;
+        private String objectId;
+        private String attribute;
+        private int values[];
+
+        @Override
+        protected Void doInBackground(String... inputStrings) {
+            objectId = inputStrings[0];
+            char objectType = inputStrings[1].charAt(0);
+            int matchNum = Integer.parseInt(inputStrings[2]);
+            attribute = inputStrings[3];
+            getAttribute(objectType, matchNum, inputStrings);
+            return null;
+        }
+
+        private void getAttribute(char objectType, int matchNum, String[] inputStrings) {
+            try {
+                Socket s = new Socket("10.0.2.2", 9876);
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                DataInputStream dis = new DataInputStream((s.getInputStream()));
+                OutputStream out = s.getOutputStream();
+                dos.writeChar(objectType);
+                dos.writeInt(matchNum);
+                dos.writeUTF(attribute);
+                dos.writeBoolean(false);
+                dos.writeInt(Integer.parseInt(inputStrings[5]));
+
+                if (attribute.equals("name")) {
+                    dos.writeInt(Integer.parseInt(inputStrings[6]));
+                    name = dis.readUTF();
+                } else if (attribute.equals("bestPlayer")) {
+                    value = dis.readInt();
+                } else if (attribute.equals("allFaults")) {
+                    values = new int[]{dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt(),
+                            dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt(), dis.readInt()};
+                }
+                out.close();
+                s.close();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+                value = 0;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (attribute.equals("name")) {
+                updateValue(name, objectId);
+            } else if (attribute.equals("allFaults")) {
+                setGraph(values, objectId);
+            } else if (attribute.equals("bestPlayer")) {
+                setCrown(value, objectId);
+            }
+        }
     }
 }

@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".PlayersFragment">
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:orientation="vertical" android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent">-->
+
+<!--</LinearLayout>-->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".Register">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,18 +21,19 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/teamABarChart"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="5" />
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -92,20 +99,21 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/teamBBarChart"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="5">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2">
 
             </com.github.mikephil.charting.charts.BarChart>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -167,4 +175,5 @@
         </LinearLayout>
 
     </LinearLayout>
-</FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
