@@ -1,29 +1,81 @@
 package com.example.ece_futbol;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
-@Entity
 public class Player {
-    @PrimaryKey
-    public int uid;
+    int id;
+    String name;
+    int assistedHit;
+    int doubleContact;
+    int catchLift;
+    int foot;
+    int netTouch;
 
-    @ColumnInfo(name = "name")
-    public String name;
+    public Player(){}
 
-    @ColumnInfo(name = "assisted_hit")
-    public int assistedHit;
+    public Player(String name) {
+        this.name = name;
+        assistedHit = 0;
+        doubleContact = 0;
+        catchLift = 0;
+        foot = 0;
+        netTouch = 0;
+    }
 
-    @ColumnInfo(name = "double_contact")
-    public int doubleContact;
+    // getters
+    public long getId() {
+        return id;
+    }
 
-    @ColumnInfo(name = "catch_lift")
-    public int catchLift;
+    public String getName() {
+        return name;
+    }
 
-    @ColumnInfo(name = "foot")
-    public int foot;
+    public int getAssistedHit() {
+        return assistedHit;
+    }
 
-    @ColumnInfo(name = "net_touch")
-    public int netTouch;
+    public int getDoubleContact() {
+        return doubleContact;
+    }
+
+    public int getCatchLift() {
+        return catchLift;
+    }
+
+    public int getFoot() {
+        return foot;
+    }
+
+    public int getNetTouch() {
+        return netTouch;
+    }
+
+    //setters
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAssistedHit(int assistedHit) {
+        this.assistedHit = assistedHit;
+    }
+
+    public void setDoubleContact(int doubleContact) {
+        this.doubleContact = doubleContact;
+    }
+
+    public void setCatchLift(int catchLift) {
+        this.catchLift = catchLift;
+    }
+
+    public void setFoot(int foot) {
+        this.foot = foot;
+    }
+
+    public void setNetTouch(int netTouch) {
+        this.netTouch = netTouch;
+    }
 }

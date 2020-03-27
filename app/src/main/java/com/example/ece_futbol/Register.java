@@ -58,6 +58,17 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
 
     MatchServer matchServer;
 
+    DatabaseHelper db;
+    boolean localStorage;
+    MatchGame mg;
+    Team tA;
+    Team tB;
+    Player p1A;
+    Player p2A;
+    Player p1B;
+    Player p2B;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,9 +92,15 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
 
         playerTeamA = "0";
         playerTeamB = "0";
-        currentMatch = "0";
+        currentMatch = "5";
         currentTeam = "0";
         currentSet = "0";
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            currentMatch = Long.toString(extras.getLong("currentMatch"));
+            localStorage = Boolean.parseBoolean(extras.getString("localStorage"));
+        }
 
         pointsTeamA = findViewById(R.id.pointsTeamA);
         assistedHitTeamA = findViewById(R.id.assistedHitTeamA);
@@ -110,6 +127,9 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
             currentSet = savedInstanceState.getString(STATE_SET, "0");
         }
 
+        db = new DatabaseHelper(getApplicationContext());
+        initLocalDatabase();
+
         initPoints('A', "0");
         initPoints('A', "1");
         initMatchServer("pointsTeamA", "M", currentMatch, "gamePoints", Boolean.toString(false), "0", currentSet);
@@ -128,7 +148,10 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         toggle = (ToggleButton) findViewById(R.id.toggleButton);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+                if (localStorage) {
+                    updateMatchGame(isChecked);
+                }
+                else if (isChecked) {
                     initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(true), "1", currentSet);
                 } else {
                     initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(true), "0", currentSet);
@@ -144,6 +167,8 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         spinner.setAdapter(adapter);
         spinner.setSelection(Integer.parseInt(currentSet));
         spinner.setOnItemSelectedListener(this);
+
+
     }
 
     public void onPlayerTeamA(View view) {
@@ -283,8 +308,12 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     private void initMatchServer(String...inputString) {
-        matchServer = new MatchServer();
-        matchServer.execute(inputString);
+        if (localStorage && inputString[4].equals("false")) {
+           getLocalValue(inputString[0]);
+        } else {
+            matchServer = new MatchServer();
+            matchServer.execute(inputString);
+        }
     }
 
     private void updateValue(int value, String objectId) {
@@ -325,6 +354,120 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
+    private String getTeamPoints(Team t) {
+        int value;
+        switch (Integer.parseInt(currentSet)) {
+            case 0:
+                value = t.getGameSets0();
+                break;
+            case 1:
+                value = t.getGameSets1();
+                break;
+            case 2:
+                value = t.getGameSets2();
+                break;
+            case 3:
+                value = t.getGameSets3();
+                break;
+            case 4:
+                value = t.getGameSets4();
+                break;
+            default :
+                value = 0;
+        }
+
+        return Integer.toString(value);
+    }
+
+    private int getMatchWinner() {
+        switch (Integer.parseInt(currentSet)) {
+            case 0:
+                return mg.getGameSets0();
+            case 1:
+                return mg.getGameSets1();
+            case 2:
+                return mg.getGameSets2();
+            case 3:
+                return mg.getGameSets3();
+            case 4:
+                return mg.getGameSets4();
+            default :
+                return -1;
+        }
+
+    }
+
+    private void getLocalValue(String objectId) {
+        Player pA = playerTeamA.equals("0") ? p1A : p2A;
+        Player pB = playerTeamA.equals("0") ? p1B : p2B;
+        Team t = currentTeam.equals("0") ? tA : tB;
+        if (objectId.equals("pointsTeamA")) {
+            pointsTeamA.setText(getTeamPoints(tA));
+        }  else if (objectId.equals("assistedHitTeamA")) {
+            assistedHitTeamA.setText(faultsPlayerText[0] + ": " + pA.getAssistedHit());
+        } else if (objectId.equals("doubleContactTeamA")) {
+            doubleContactTeamA.setText(faultsPlayerText[1] + ": " + pA.getDoubleContact());
+        } else if (objectId.equals("catchLiftTeamA")) {
+            catchLiftTeamA.setText(faultsPlayerText[2] + ": " + pA.getCatchLift());
+        } else if (objectId.equals("footTeamA")) {
+            footTeamA.setText(faultsPlayerText[3] + ": " + pA.getFoot());
+        } else if (objectId.equals("netTouchTeamA")) {
+            netTouchTeamA.setText(faultsPlayerText[4] + ": " + pA.getNetTouch());
+        } else if (objectId.equals("pointsTeamB")) {
+            pointsTeamB.setText(getTeamPoints(tB));
+        } else if (objectId.equals("assistedHitTeamB")) {
+            assistedHitTeamB.setText(faultsPlayerText[0] + ": " + pB.getAssistedHit());
+        } else if (objectId.equals("doubleContactTeamB")) {
+            doubleContactTeamB.setText(faultsPlayerText[1] + ": " + pB.getDoubleContact());
+        } else if (objectId.equals("catchLiftTeamB")) {
+            catchLiftTeamB.setText(faultsPlayerText[2] + ": " + pB.getCatchLift());
+        } else if (objectId.equals("footTeamB")) {
+            footTeamB.setText(faultsPlayerText[3] + ": " + pB.getFoot());
+        } else if (objectId.equals("netTouchTeamB")) {
+            netTouchTeamB.setText(faultsPlayerText[4] + ": " + pB.getNetTouch());
+        } else if (objectId.equals("fourHits")) {
+            fourHits.setText(getResources().getString(R.string.fourHits) + ": " + t.getFourHits());
+        } else if (objectId.equals("serviceOrder")) {
+            serviceOrder.setText(getResources().getString(R.string.serviceOrder) + ": " + t.getServiceOrder());
+        } else if (objectId.equals("toggle")) {
+            if (getMatchWinner() <= 0) {
+                toggle.setChecked(false);
+            } else {
+                toggle.setChecked(true);
+            }
+        }
+    }
+
+    void updateMatchGame(boolean isChecked) {
+        int value = isChecked ? 1 : 0;
+        if (currentSet.equals("0")) {
+            mg.setGameSets0(value);
+        } else if (currentSet.equals("1")) {
+            mg.setGameSets1(value);
+        }else if (currentSet.equals("2")) {
+            mg.setGameSets2(value);
+        }else if (currentSet.equals("3")) {
+            mg.setGameSets3(value);
+        }else if (currentSet.equals("4")) {
+            mg.setGameSets4(value);
+        }
+    }
+
+    void initLocalDatabase() {
+        if (!localStorage) {
+            return;
+        }
+        mg = db.getMatchGame(Integer.parseInt(currentMatch));
+        tA = db.getTeam(mg.getTeamAName());
+        tB = db.getTeam(mg.getTeamBName());
+        p1A = db.getPlayer(tA.getPlayer1());
+        p2A = db.getPlayer(tA.getPlayer2());
+        p1B = db.getPlayer(tB.getPlayer1());
+        p2B = db.getPlayer(tB.getPlayer2());
+
+        System.out.println("yes");
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -333,6 +476,11 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         outState.putString(STATE_MATCH, currentMatch);
         outState.putString(STATE_TEAM, currentTeam);
         outState.putString(STATE_SET, currentSet);
+
+        if (Integer.parseInt(currentMatch) > 4) {
+//            updateLocalStorage();
+        }
+        db.closeDB();
     }
 
         @Override

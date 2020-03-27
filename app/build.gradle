@@ -39,9 +39,9 @@ dependencies {
     // Bar Graph
     implementation 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     // Room for SQLite
-    def room_version = "2.2.5"
-    implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-rxjava2:$room_version"
-    testImplementation "androidx.room:room-testing:$room_version"
+//    def room_version = "2.2.5"
+//    implementation "androidx.room:room-runtime:$room_version"
+//    annotationProcessor "androidx.room:room-compiler:$room_version"
+//    implementation "androidx.room:room-rxjava2:$room_version"
+//    testImplementation "androidx.room:room-testing:$room_version"
 }
