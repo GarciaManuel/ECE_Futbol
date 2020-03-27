@@ -92,9 +92,17 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
 
         playerTeamA = "0";
         playerTeamB = "0";
-        currentMatch = "5";
+        currentMatch = "0";
         currentTeam = "0";
         currentSet = "0";
+
+        mg = new MatchGame();
+        tA = new Team();
+        tB = new Team();
+        p1A = new Player();
+        p2A = new Player();
+        p1B = new Player();
+        p2B = new Player();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -146,10 +154,11 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         initFaultsTeam("serviceOrder");
 
         toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(false), currentSet);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (localStorage) {
-                    updateMatchGame(isChecked);
+                    setMatchGame(isChecked);
                 }
                 else if (isChecked) {
                     initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(true), "1", currentSet);
@@ -158,7 +167,6 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
                 }
             }
         });
-        initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(false), currentSet);
 
         Spinner spinner = (Spinner) findViewById(R.id.matches_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -167,8 +175,6 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         spinner.setAdapter(adapter);
         spinner.setSelection(Integer.parseInt(currentSet));
         spinner.setOnItemSelectedListener(this);
-
-
     }
 
     public void onPlayerTeamA(View view) {
@@ -226,6 +232,13 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void initPoints(final char teamChar, final String action) {
         final String currentTeamPos = (teamChar == 'A') ? "0" : "1";
+
+        // Points TextView
+        final String textIdName = "pointsTeam" + teamChar;
+        final int textId = getResources().getIdentifier(textIdName, "id", getPackageName());
+        final TextView textPoints = (TextView) findViewById(textId);
+
+        // Add/Sub button
         final String objectId = ((action.equals("1")) ? "add" : "sub") + "Team" + teamChar;
         final int num = (action.equals("1")) ? 1 : -1;
         int resId = getResources().getIdentifier(objectId, "id", getPackageName());
@@ -234,10 +247,8 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int textId = getResources().getIdentifier("pointsTeam" + teamChar, "id", getPackageName());
-                        TextView textPoints = (TextView) findViewById(textId);
-                        textPoints.setText(Integer.toString(Integer.parseInt(textPoints.getText().toString()) + num));
-                        initMatchServer("pointsTeam" + teamChar, "M", currentMatch, "gamePoints", Boolean.toString(true), action, currentTeamPos, currentSet);
+                        updateValue(Integer.parseInt(textPoints.getText().toString()) + num, textIdName);
+                        initMatchServer(textIdName, "M", currentMatch, "gamePoints", Boolean.toString(true), action, currentTeamPos, currentSet);
                     }
                 });
     }
@@ -310,13 +321,19 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
     private void initMatchServer(String...inputString) {
         if (localStorage && inputString[4].equals("false")) {
            getLocalValue(inputString[0]);
-        } else {
+        } else if (!localStorage){
             matchServer = new MatchServer();
             matchServer.execute(inputString);
         }
     }
 
     private void updateValue(int value, String objectId) {
+        if (value < 0) {
+            return;
+        } else if (localStorage) {
+            setLocalValue(value, objectId);
+        }
+
         if (objectId.equals("pointsTeamA")) {
             pointsTeamA.setText(Integer.toString(value));
         }  else if (objectId.equals("assistedHitTeamA")) {
@@ -346,7 +363,7 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         } else if (objectId.equals("serviceOrder")) {
             serviceOrder.setText(getResources().getString(R.string.serviceOrder) + ": " + value);
         } else if (objectId.equals("toggle")) {
-            if (value <= 0) {
+            if (value == 0) {
                 toggle.setChecked(false);
             } else {
                 toggle.setChecked(true);
@@ -354,6 +371,18 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        currentSet = Integer.toString(position);
+        initMatchServer("pointsTeamA", "M", currentMatch, "gamePoints", Boolean.toString(false), "0", currentSet);
+        initMatchServer("pointsTeamB", "M", currentMatch, "gamePoints", Boolean.toString(false), "1", currentSet);
+        initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(false), currentSet);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {}
+
+    // <----------- LocalStorage functions ----------->
     private String getTeamPoints(Team t) {
         int value;
         switch (Integer.parseInt(currentSet)) {
@@ -379,6 +408,29 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         return Integer.toString(value);
     }
 
+    private String setTeamPoints(Team t, int value) {
+        switch (Integer.parseInt(currentSet)) {
+            case 0:
+                t.setGameSets0(value);
+                break;
+            case 1:
+                t.setGameSets1(value);
+                break;
+            case 2:
+                t.setGameSets2(value);
+                break;
+            case 3:
+                t.setGameSets3(value);
+                break;
+            case 4:
+                t.setGameSets4(value);
+                break;
+            default :
+        }
+
+        return Integer.toString(value);
+    }
+
     private int getMatchWinner() {
         switch (Integer.parseInt(currentSet)) {
             case 0:
@@ -394,12 +446,26 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
             default :
                 return -1;
         }
+    }
 
+    void setMatchGame(boolean isChecked) {
+        int value = isChecked ? 1 : 0;
+        if (currentSet.equals("0")) {
+            mg.setGameSets0(value);
+        } else if (currentSet.equals("1")) {
+            mg.setGameSets1(value);
+        }else if (currentSet.equals("2")) {
+            mg.setGameSets2(value);
+        }else if (currentSet.equals("3")) {
+            mg.setGameSets3(value);
+        }else if (currentSet.equals("4")) {
+            mg.setGameSets4(value);
+        }
     }
 
     private void getLocalValue(String objectId) {
         Player pA = playerTeamA.equals("0") ? p1A : p2A;
-        Player pB = playerTeamA.equals("0") ? p1B : p2B;
+        Player pB = playerTeamB.equals("0") ? p1B : p2B;
         Team t = currentTeam.equals("0") ? tA : tB;
         if (objectId.equals("pointsTeamA")) {
             pointsTeamA.setText(getTeamPoints(tA));
@@ -438,18 +504,38 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    void updateMatchGame(boolean isChecked) {
-        int value = isChecked ? 1 : 0;
-        if (currentSet.equals("0")) {
-            mg.setGameSets0(value);
-        } else if (currentSet.equals("1")) {
-            mg.setGameSets1(value);
-        }else if (currentSet.equals("2")) {
-            mg.setGameSets2(value);
-        }else if (currentSet.equals("3")) {
-            mg.setGameSets3(value);
-        }else if (currentSet.equals("4")) {
-            mg.setGameSets4(value);
+    private void setLocalValue(int value, String objectId) {
+        Player pA = playerTeamA.equals("0") ? p1A : p2A;
+        Player pB = playerTeamB.equals("0") ? p1B : p2B;
+        Team t = currentTeam.equals("0") ? tA : tB;
+        if (objectId.equals("pointsTeamA")) {
+            setTeamPoints(tA, value);
+        }  else if (objectId.equals("assistedHitTeamA")) {
+            pA.setAssistedHit(value);
+        } else if (objectId.equals("doubleContactTeamA")) {
+            pA.setDoubleContact(value);
+        } else if (objectId.equals("catchLiftTeamA")) {
+            pA.setCatchLift(value);
+        } else if (objectId.equals("footTeamA")) {
+            pA.setFoot(value);
+        } else if (objectId.equals("netTouchTeamA")) {
+            pA.setNetTouch(value);
+        } else if (objectId.equals("pointsTeamB")) {
+            setTeamPoints(tB, value);
+        }  else if (objectId.equals("assistedHitTeamB")) {
+            pB.setAssistedHit(value);
+        } else if (objectId.equals("doubleContactTeamB")) {
+            pB.setDoubleContact(value);
+        } else if (objectId.equals("catchLiftTeamB")) {
+            pB.setCatchLift(value);
+        } else if (objectId.equals("footTeamB")) {
+            pB.setFoot(value);
+        } else if (objectId.equals("netTouchTeamB")) {
+            pB.setNetTouch(value);
+        } else if (objectId.equals("fourHits")) {
+            t.setFourHits(value);
+        } else if (objectId.equals("serviceOrder")) {
+            t.setServiceOrder(value);
         }
     }
 
@@ -464,8 +550,24 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         p2A = db.getPlayer(tA.getPlayer2());
         p1B = db.getPlayer(tB.getPlayer1());
         p2B = db.getPlayer(tB.getPlayer2());
+    }
 
-        System.out.println("yes");
+    void updateLocalStorage() {
+        db.updateMatchGame(mg);
+        db.updateTeam(tA);
+        db.updateTeam(tB);
+        db.updatePlayer(p1A);
+        db.updatePlayer(p2A);
+        db.updatePlayer(p1B);
+        db.updatePlayer(p2B);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (localStorage) {
+            updateLocalStorage();
+        }
     }
 
     @Override
@@ -477,25 +579,13 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         outState.putString(STATE_TEAM, currentTeam);
         outState.putString(STATE_SET, currentSet);
 
-        if (Integer.parseInt(currentMatch) > 4) {
-//            updateLocalStorage();
+        if (localStorage) {
+            updateLocalStorage();
         }
         db.closeDB();
     }
 
-        @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        currentSet = Integer.toString(position);
-        initMatchServer("pointsTeamA", "M", currentMatch, "gamePoints", Boolean.toString(false), "0", currentSet);
-        initMatchServer("pointsTeamB", "M", currentMatch, "gamePoints", Boolean.toString(false), "1", currentSet);
-        initMatchServer("toggle", "M", currentMatch, "gameSets", Boolean.toString(false), currentSet);
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
-
+    // <----------- ExternalStorage Server functions ----------->
     private  class MatchServer extends AsyncTask<String, Void, Void> {
         private int value;
         private String objectId;

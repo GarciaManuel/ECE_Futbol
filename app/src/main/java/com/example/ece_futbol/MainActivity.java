@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Intent registerActivity = new Intent(MainActivity.this, Register.class);
-                        registerActivity.putExtra("curentMatch", matchGamesId[0]);
+                        registerActivity.putExtra("currentMatch", matchGamesId[0]);
                         registerActivity.putExtra("localStorage", "true");
                         startActivity(registerActivity);
                     }
@@ -93,15 +93,15 @@ public class MainActivity extends AppCompatActivity {
 //        db.createMatchGame(mg4);
 //        db.createMatchGame(mg5);
 
-//        for (int i = 0, j = 0; j < 10; i +=2, j++) {
-//            Team t = new Team(schools[j], persons[i], persons[i+1]);
-//            db.createTeam(t);
-//        }
-//
-//        for (String per : persons) {
-//            Player p = new Player(per);
-//            db.createPlayer(p);
-//        }
+        for (int i = 0, j = 0; j < 10; i +=2, j++) {
+            Team t = new Team(schools[j], persons[i], persons[i+1]);
+            db.createTeam(t);
+        }
+
+        for (String per : persons) {
+            Player p = new Player(per);
+            db.createPlayer(p);
+        }
 //        Team t1 = new Team("TEC", "Andrea", "Rebeca");
 //        Team t2 = new Team("CUHK", "Jenna", "James");
 //        Team t3 = new Team("Brown", "Lucy", "Javier");

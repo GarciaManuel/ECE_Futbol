@@ -11,7 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String LOG = "DatabaseHelper";
 
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = "beachVolleyball";
@@ -50,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // MatchGame table create statement
     private static final  String CREATE_TABLE_MATCHGAME =
             "CREATE TABLE " + TABLE_MATCHGAME + " (" +
-                    KEY_ID + "INTEGER PRIMARY KEY, " +
+                    KEY_ID + " INTEGER PRIMARY KEY, " +
                     KEY_TEAMANAME + " TEXT, " +
                     KEY_TEAMBNAME + " TEXT, " +
                     KEY_GAMESETS0 + " INTEGER, " +
@@ -62,8 +62,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Team table create statement
     private static final  String CREATE_TABLE_TEAM =
             "CREATE TABLE " + TABLE_TEAM + " (" +
-                    KEY_ID + "INTEGER PRIMARY KEY, " +
-                    KEY_NAME + "TEXT, " +
+                    KEY_ID + " INTEGER PRIMARY KEY, " +
+                    KEY_NAME + " TEXT, " +
                     KEY_PLAYER1 + " TEXT, " +
                     KEY_PLAYER2 + " TEXT, " +
                     KEY_FOURHITS + " INTEGER, " +
@@ -77,8 +77,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Player table create statement
     private static final  String CREATE_TABLE_PLAYER =
             "CREATE TABLE " + TABLE_PLAYER + " (" +
-                    KEY_ID + "INTEGER PRIMARY KEY, " +
-                    KEY_NAME + "TEXT, " +
+                    KEY_ID + " INTEGER PRIMARY KEY, " +
+                    KEY_NAME + " TEXT, " +
                     KEY_ASSISTEDHIT + " INTEGER, " +
                     KEY_DOUBLECONTACT + " INTEGER, " +
                     KEY_CATCHLIFT + " INTEGER, " +
@@ -192,7 +192,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = "SELECT * FROM " + TABLE_TEAM +
-                " WHERE " + KEY_NAME + " LIKE " + team_name;
+                " WHERE " + KEY_NAME + " LIKE '" + team_name + "'";
 
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null) {
@@ -203,6 +203,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         t.setName(c.getString(c.getColumnIndex(KEY_NAME)));
         t.setPlayer1(c.getString(c.getColumnIndex(KEY_PLAYER1)));
         t.setPlayer2(c.getString(c.getColumnIndex(KEY_PLAYER2)));
+        t.setFourHits(c.getInt(c.getColumnIndex(KEY_FOURHITS)));
+        t.setServiceOrder(c.getInt(c.getColumnIndex(KEY_SERVICEORDER)));
         t.setGameSets0(c.getInt(c.getColumnIndex(KEY_GAMESETS0)));
         t.setGameSets1(c.getInt(c.getColumnIndex(KEY_GAMESETS1)));
         t.setGameSets2(c.getInt(c.getColumnIndex(KEY_GAMESETS2)));
@@ -219,6 +221,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //        values.put(KEY_NAME, team.getName());
         values.put(KEY_PLAYER1, team.getPlayer1());
         values.put(KEY_PLAYER2, team.getPlayer2());
+        values.put(KEY_FOURHITS, team.getFourHits());
+        values.put(KEY_SERVICEORDER, team.getServiceOrder());
         values.put(KEY_GAMESETS0, team.getGameSets0());
         values.put(KEY_GAMESETS1, team.getGameSets1());
         values.put(KEY_GAMESETS2, team.getGameSets2());
@@ -247,7 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = "SELECT * FROM " + TABLE_PLAYER +
-                " WHERE " + KEY_NAME + " LIKE " + player_name;
+                " WHERE " + KEY_NAME + " LIKE '" + player_name + "'";
 
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null) {
