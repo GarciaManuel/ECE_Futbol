@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
     // Logcat tag
     private static final String LOG = "DatabaseHelper";
@@ -154,6 +157,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return mg;
     }
+
+    public List<String> getAllMatches() {
+        List<String> matches = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_MATCHGAME;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(selectQuery, null);
+
+        if (c.moveToFirst()) {
+            String match = "";
+           do {
+               match = c.getString(c.getColumnIndex(KEY_TEAMANAME))
+               + " vs. " + c.getString(c.getColumnIndex(KEY_TEAMBNAME));
+               matches.add(match);
+           } while (c.moveToNext());
+        }
+        return matches;
+    }
+
+
 
     public void updateMatchGame(MatchGame matchGame) {
         SQLiteDatabase db = this.getWritableDatabase();

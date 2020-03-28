@@ -37,7 +37,9 @@ import java.net.UnknownHostException;
  */
 public class TeamsFragment extends Fragment {
     private static final String ARG_MATCH_NUM = "matchNum";
+    private static final String ARG_LOCAL_STORAGE = "localStorage";
     private String currentMatch;
+    private boolean localStorage;
 
     private OnFragmentInteractionListener mListener;
 
@@ -54,14 +56,20 @@ public class TeamsFragment extends Fragment {
 
     private MatchServer matchServer;
 
+    private DatabaseHelper db;
+    private MatchGame mg;
+    private Team tA;
+    private Team tB;
+
     public TeamsFragment() {
         // Required empty public constructor
     }
 
-    public static TeamsFragment newInstance(String param1) {
+    public static TeamsFragment newInstance(String param1, Boolean param2) {
         TeamsFragment fragment = new TeamsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_MATCH_NUM, param1);
+        args.putBoolean(ARG_LOCAL_STORAGE, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -71,6 +79,7 @@ public class TeamsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             currentMatch = getArguments().getString(ARG_MATCH_NUM);
+            localStorage = getArguments().getBoolean(ARG_LOCAL_STORAGE);
         }
     }
 
@@ -90,28 +99,28 @@ public class TeamsFragment extends Fragment {
        graph = (GraphView) view.findViewById(R.id.graph);
        graph.setVisibility(View.VISIBLE);
 
+        db = new DatabaseHelper(getActivity().getApplicationContext());
+        initLocalDatabase();
+
        for (int i = 0; i < 2; i++) {
            char teamChar = (i == 0) ? 'A' : 'B';
            initMatchServer("nameTeam" + teamChar, "T", currentMatch, "name", Boolean.toString(false), Integer.toString(i));
            initMatchServer("fourHitsTeam"  + teamChar, "T", currentMatch, "fourHits", Boolean.toString(false), Integer.toString(i));
            initMatchServer("serviceOrderTeam" + teamChar, "T", currentMatch, "serviceOrder", Boolean.toString(false), Integer.toString(i));
        }
-       initMatchServer("", "M", currentMatch, "allPoints", Boolean.toString(false));
-       initMatchServer("", "M", currentMatch, "winnerTeam", Boolean.toString(false));
+       initMatchServer("allPoints", "M", currentMatch, "allPoints", Boolean.toString(false));
+       initMatchServer("winnerTeam", "M", currentMatch, "winnerTeam", Boolean.toString(false));
 
-        return view;
+       return view;
     }
 
-//    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
-
     private void initMatchServer(String...inputString) {
-        matchServer = new TeamsFragment.MatchServer();
-        matchServer.execute(inputString);
+            if (localStorage) {
+                getLocalValue(inputString[0]);
+            } else {
+                matchServer = new TeamsFragment.MatchServer();
+                matchServer.execute(inputString);
+            }
     }
 
     @Override
@@ -131,10 +140,7 @@ public class TeamsFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-//        void onFragmentInteraction();
-    }
+    public interface OnFragmentInteractionListener {}
 
     private void setGraph(int[] scores) {
         try {
@@ -161,7 +167,7 @@ public class TeamsFragment extends Fragment {
             graph.addSeries(teamA);
             graph.addSeries(teamB);
             graph.getViewport().setMaxX(5);
-            graph.setTitle("Points per Set");
+            graph.setTitle(getResources().getString(R.string.pointsPerSet));
             graph.getLegendRenderer().setVisible(true);
             graph.getLegendRenderer().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
@@ -201,6 +207,51 @@ public class TeamsFragment extends Fragment {
         }
     }
 
+    // <----------- LocalStorage functions ----------->
+    void initLocalDatabase() {
+        if (!localStorage) {
+            return;
+        }
+        mg = db.getMatchGame(Integer.parseInt(currentMatch));
+        tA = db.getTeam(mg.getTeamAName());
+        tB = db.getTeam(mg.getTeamBName());
+    }
+
+    private int getWinnerTeam() {
+        int winA = 0;
+        int winB = 0;
+        if (mg.getGameSets0() == 0) { winA++;} else if (mg.getGameSets0() == 1) {winB++;}
+        if (mg.getGameSets1() == 0) { winA++;} else if (mg.getGameSets1() == 1) {winB++;}
+        if (mg.getGameSets2() == 0) { winA++;} else if (mg.getGameSets2() == 1) {winB++;}
+        if (mg.getGameSets3() == 0) { winA++;} else if (mg.getGameSets3() == 1) {winB++;}
+        if (mg.getGameSets4() == 0) { winA++;} else if (mg.getGameSets4() == 1) {winB++;}
+        return (winA >= winB) ? 0 : 1;
+    }
+
+    private void getLocalValue(String objectId) {
+        if (objectId.equals("fourHitsTeamA")) {
+            fourHitsTeamA.setText(Integer.toString(tA.getFourHits()));
+        } else if (objectId.equals("serviceOrderTeamA")) {
+            serviceOrderTeamA.setText(Integer.toString(tA.getServiceOrder()));
+        } else if (objectId.equals("fourHitsTeamB")) {
+            fourHitsTeamB.setText(Integer.toString(tB.getFourHits()));
+        } else if (objectId.equals("serviceOrderTeamB")) {
+            serviceOrderTeamB.setText(Integer.toString(tB.getServiceOrder()));
+        } else if (objectId.equals("nameTeamA")) {
+            nameTeamA.setText(tA.getName());
+        } else if (objectId.equals("nameTeamB")) {
+            nameTeamB.setText(tB.getName());
+        } else if (objectId.equals("winnerTeam")) {
+            setCrown(getWinnerTeam());
+        } else if (objectId.equals("allPoints")) {
+            int scores[] = new int[]{tA.getGameSets0(), tA.getGameSets1(), tA.getGameSets2(),
+                    tA.getGameSets3(), tA.getGameSets4(), tB.getGameSets0(), tB.getGameSets1(),
+                    tB.getGameSets2(), tB.getGameSets3(), tB.getGameSets4()};
+            setGraph(scores);
+        }
+    }
+
+    // <----------- ExternalStorage Server functions ----------->
     private  class MatchServer extends AsyncTask<String, Void, Void> {
         private int value;
         private String name;

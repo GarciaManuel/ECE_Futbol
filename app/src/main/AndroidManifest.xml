@@ -7,8 +7,8 @@
         android:required="true" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -22,7 +22,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".Statistics"></activity>
         <activity android:name=".Register" />
-        <activity android:name=".Maps" />
+        <activity
+            android:name=".Maps"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -39,10 +42,12 @@
             android:value="AIzaSyBIV4zKkJyFz_4JhsGSqqj8-IXJRsvjIVg" />
 
         <activity android:name=".Photos" />
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="matches_array">
-        <item>Monday</item>
-        <item>Tuesday</item>
-        <item>Wednesday</item>
-        <item>Thursday</item>
-        <item>Friday</item>
-        <item>Saturday</item>
-        <item>Sunday</item>
-    </string-array>
     <string-array name="lat_array">
         <item>41.38</item>
         <item>55.71</item>
         <item>40.43</item>
         <item>38.75</item>
+        <item>51.55</item>
+        <item>48.79</item>
+        <item>51.53</item>
         <item>51.55</item>
         <item>48.79</item>
         <item>51.53</item>
@@ -23,6 +17,9 @@
         <item>37.56</item>
         <item>-3.6</item>
         <item>-9.18</item>
+        <item>-0.11</item>
+        <item>9.23</item>
+        <item>-0.01</item>
         <item>-0.11</item>
         <item>9.23</item>
         <item>-0.01</item>

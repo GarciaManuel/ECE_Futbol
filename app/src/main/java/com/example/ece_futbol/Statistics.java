@@ -8,8 +8,11 @@ import android.view.View;
 import android.widget.RadioButton;
 
 public class Statistics extends AppCompatActivity implements TeamsFragment.OnFragmentInteractionListener, PlayersFragment.OnFragmentInteractionListener {
+    private  static final String STATE_CHOSEN = "CHOSEN";
 
     String currentMatch;
+    boolean localStorage;
+    boolean chosen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,10 +20,24 @@ public class Statistics extends AppCompatActivity implements TeamsFragment.OnFra
         setContentView(R.layout.activity_statistics);
 
         currentMatch = "0";
+        chosen = false;
 
-        TeamsFragment teamsFragment = TeamsFragment.newInstance(currentMatch);
-        FragmentTransaction fgt = getSupportFragmentManager().beginTransaction();
-        fgt.add(R.id.statsFragment, teamsFragment).commit();
+        if (savedInstanceState != null) {
+            chosen = savedInstanceState.getBoolean(STATE_CHOSEN, true);
+        }
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            currentMatch = Long.toString(extras.getLong("currentMatch"));
+            localStorage = extras.getBoolean("localStorage");
+        }
+
+        if (!chosen) {
+            TeamsFragment teamsFragment = TeamsFragment.newInstance(currentMatch, localStorage);
+            FragmentTransaction fgt = getSupportFragmentManager().beginTransaction();
+            fgt.add(R.id.statsFragment, teamsFragment).commit();
+        }
+
     }
 
     public void onFragmentChoose(View view) {
@@ -31,15 +48,21 @@ public class Statistics extends AppCompatActivity implements TeamsFragment.OnFra
         FragmentTransaction fgt = getSupportFragmentManager().beginTransaction();
         switch (view.getId()) {
             case R.id.teamsRadio:
-                TeamsFragment teamsFragment = TeamsFragment.newInstance(currentMatch);
+                chosen = true;
+                TeamsFragment teamsFragment = TeamsFragment.newInstance(currentMatch, localStorage);
                 fgt.replace(R.id.statsFragment, teamsFragment).commit();
                 break;
             case R.id.playersRadio:
-                PlayersFragment playersFragment = PlayersFragment.newInstance(currentMatch);
+                chosen = true;
+                PlayersFragment playersFragment = PlayersFragment.newInstance(currentMatch, localStorage);
                 fgt.replace(R.id.statsFragment, playersFragment).commit();
                 break;
         }
-
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_CHOSEN, chosen);
+    }
 }

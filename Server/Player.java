@@ -1,70 +1,78 @@
+
 public class Player {
     String name;
-    int assistedHitFault;
-    int doubleContactFault;
-    int catchLiftFault;
-    int footFault;
-    int netTouchFault;
+    int assistedHit;
+    int doubleContact;
+    int catchLift;
+    int foot;
+    int netTouch;
 
     public Player(String name) {
         this.name = name;
-        assistedHitFault = 0;
-        doubleContactFault = 0;
-        catchLiftFault = 0;
-        footFault = 0;
-        netTouchFault = 0;
+        assistedHit = 0;
+        doubleContact = 0;
+        catchLift = 0;
+        foot = 0;
+        netTouch = 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAllFaults() {
+        return assistedHit + doubleContact + catchLift + foot + netTouch;
     }
 
     public void addFault(String fault) {
-        if (fault.equals("assistedHitFault")) {
-            assistedHitFault++;
-        }
-        else if (fault.equals("doubleContactFault")) {
-            doubleContactFault++;
-        }
-        else if (fault.equals("catchLiftFault")) {
-            catchLiftFault++;
-        }
-        else if (fault.equals("footFault")) {
-            footFault++;
-        } else {
-            netTouchFault++;
+        if (fault.equals("assistedHit")) {
+            assistedHit++;
+        } else if (fault.equals("doubleContact")) {
+            doubleContact++;
+        } else if (fault.equals("catchLift")) {
+            catchLift++;
+        } else if (fault.equals("foot")) {
+            foot++;
+        } else if (fault.equals("netTouch")) {
+            netTouch++;
         }
     }
 
     public void subFault(String fault) {
-        if (fault.equals("assistedHitFault")) {
-            assistedHitFault--;
+        if (fault.equals("assistedHit")) {
+            assistedHit--;
         }
-        else if (fault.equals("doubleContactFault")) {
-            doubleContactFault--;
+        else if (fault.equals("doubleContact")) {
+            doubleContact--;
         }
-        else if (fault.equals("catchLiftFault")) {
-            catchLiftFault--;
+        else if (fault.equals("catchLift")) {
+            catchLift--;
         }
-        else if (fault.equals("footFault")) {
-            footFault--;
-        } else {
-            netTouchFault--;
+        else if (fault.equals("foot")) {
+            foot--;
+        } else if (fault.equals("netTouch")){
+            netTouch--;
         }
     }
 
     public int getFault(String fault) {
-        if (fault.equals("assistedHitFault")) {
-            return assistedHitFault;
+        if (fault.equals("assistedHit")) {
+            return assistedHit;
         }
-        else if (fault.equals("doubleContactFault")) {
-            return doubleContactFault;
+        else if (fault.equals("doubleContact")) {
+            return doubleContact;
         }
-        else if (fault.equals("catchLiftFault")) {
-            return catchLiftFault;
+        else if (fault.equals("catchLift")) {
+            return catchLift;
         }
-        else if (fault.equals("footFault")) {
-            return footFault;
+        else if (fault.equals("foot")) {
+            return foot;
+        } else if (fault.equals("netTouch")) {
+            return netTouch;
         } else {
-            return netTouchFault;
+            return 0;
         }
-    }    
+    }
 
 
 

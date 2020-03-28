@@ -21,8 +21,11 @@
                 android:id="@+id/teamsRadio"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
                 android:layout_weight="1"
                 android:checked="true"
+                android:gravity="right|fill_vertical"
+                android:layoutDirection="rtl"
                 android:onClick="onFragmentChoose"
                 android:text="@string/teams" />
 

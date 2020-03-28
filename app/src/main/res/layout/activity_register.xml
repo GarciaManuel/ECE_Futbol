@@ -358,7 +358,8 @@
                         android:layout_weight="1"
                         android:checked="true"
                         android:onClick="onTeams"
-                        android:text="@string/teamA" />
+                        android:text="@string/teamA"
+                        android:textSize="12sp" />
 
                     <RadioButton
                         android:id="@+id/teamBRadio"
@@ -366,7 +367,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:onClick="onTeams"
-                        android:text="@string/teamB" />
+                        android:text="@string/teamB"
+                        android:textSize="12sp" />
                 </RadioGroup>
 
             </LinearLayout>

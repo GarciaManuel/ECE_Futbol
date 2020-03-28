@@ -107,7 +107,7 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             currentMatch = Long.toString(extras.getLong("currentMatch"));
-            localStorage = Boolean.parseBoolean(extras.getString("localStorage"));
+            localStorage = extras.getBoolean("localStorage");
         }
 
         pointsTeamA = findViewById(R.id.pointsTeamA);
@@ -363,10 +363,10 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         } else if (objectId.equals("serviceOrder")) {
             serviceOrder.setText(getResources().getString(R.string.serviceOrder) + ": " + value);
         } else if (objectId.equals("toggle")) {
-            if (value == 0) {
-                toggle.setChecked(false);
-            } else {
+            if (value == 1) {
                 toggle.setChecked(true);
+            } else {
+                toggle.setChecked(false);
             }
         }
     }
@@ -496,10 +496,10 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
         } else if (objectId.equals("serviceOrder")) {
             serviceOrder.setText(getResources().getString(R.string.serviceOrder) + ": " + t.getServiceOrder());
         } else if (objectId.equals("toggle")) {
-            if (getMatchWinner() <= 0) {
-                toggle.setChecked(false);
-            } else {
+            if (getMatchWinner() == 1) {
                 toggle.setChecked(true);
+            } else {
+                toggle.setChecked(false);
             }
         }
     }

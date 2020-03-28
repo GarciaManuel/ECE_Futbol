@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ECE_Futbol</string>
+    <string name="app_name">Beach Volley</string>
     <string name="photo_init_txt">Prenez une photo</string>
     <string name="photo_btn">Photo</string>
     <string name="photo_success">Parfait!</string>
@@ -31,4 +31,9 @@
     <string name="teams">Équipes</string>
     <string name="players">Jouers</string>
     <string name="fault">Faute</string>
+    <string name="yourLocation">Vous etes ici</string>
+    <string name="pointsPerSet">Points par Set</string>
+    <string name="matchBtn">Joué Finder</string>
+    <string name="registerBtn">Enregistrer les Données</string>
+    <string name="statsBtn">Statistiques</string>
 </resources>

@@ -4,15 +4,38 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
-public class MainActivity extends AppCompatActivity {
-    DatabaseHelper db;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-    long matchGamesId[];
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener  {
+    private  static final String STATE_SELECTED_MATCH = "selectedMatch";
+    private  static final String STATE_MATCH_POSITION = "matchPosition";
+    private  static final String STATE_LOCAL_STORAGE = "localStorage";
 
+    private DatabaseHelper db;
+    private MatchServer matchServer;
+
+    private long matchGamesId[];
+    private int selectedMatch;
+    private long matchPosition;
+    private boolean localStorage;
+
+    private List<String> matches;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,15 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
         db = new DatabaseHelper(getApplicationContext());
 
-        Button photos = findViewById(R.id.takePicture);
-        photos.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent phtosActivity = new Intent(MainActivity.this, Photos.class);
-                        startActivity(phtosActivity);
-                    }
-        });
+        if (savedInstanceState != null) {
+            selectedMatch = savedInstanceState.getInt(STATE_SELECTED_MATCH, 0);
+            matchPosition = savedInstanceState.getLong(STATE_MATCH_POSITION, 0);
+            localStorage = savedInstanceState.getBoolean(STATE_LOCAL_STORAGE, false);
+        }
 
         Button maps = findViewById(R.id.matchMap);
         maps.setOnClickListener(
@@ -37,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Intent mapsActivity = new Intent(MainActivity.this, Maps.class);
+                        mapsActivity.putStringArrayListExtra("matches", (ArrayList<String>) matches);
                         startActivity(mapsActivity);
                     }
                 });
@@ -47,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Intent registerActivity = new Intent(MainActivity.this, Register.class);
-                        registerActivity.putExtra("currentMatch", matchGamesId[0]);
-                        registerActivity.putExtra("localStorage", "true");
+                        registerActivity.putExtra("currentMatch", matchPosition);
+                        registerActivity.putExtra("localStorage", localStorage);
                         startActivity(registerActivity);
                     }
                 });
@@ -59,14 +79,39 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         Intent statsActivity = new Intent(MainActivity.this, Statistics.class);
+                        statsActivity.putExtra("currentMatch", matchPosition);
+                        statsActivity.putExtra("localStorage", localStorage);
                         startActivity(statsActivity);
                     }
                 });
 
         initDatabase();
+        initMatchServer("", "", "", "allMatches", Boolean.toString(false));
 
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item, matches);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(selectedMatch);
+        spinner.setOnItemSelectedListener(this);
     }
 
+    private void initMatchServer(String...inputString) {
+            matchServer = new MatchServer();
+            matchServer.execute(inputString);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_SELECTED_MATCH, selectedMatch);
+        outState.putLong(STATE_MATCH_POSITION, matchPosition);
+        outState.putBoolean(STATE_LOCAL_STORAGE, localStorage);
+
+        db.closeDB();
+    }
+    // <----------- LocalStorage functions ----------->
     private void initDatabase() {
         db.resetDatabase();
 
@@ -81,17 +126,6 @@ public class MainActivity extends AppCompatActivity {
             MatchGame mg = new MatchGame(j, schools[i], schools[i+1]);
             matchGamesId[z] = db.createMatchGame(mg);
         }
-//        MatchGame mg1 = new MatchGame(5, "TEC", "Harvard");
-//        MatchGame mg2 = new MatchGame(6, "CUHK", "LaSalle");
-//        MatchGame mg3 = new MatchGame(7, "Brown", "Stanford");
-//        MatchGame mg4 = new MatchGame(8,"ECE", "UCLA");
-//        MatchGame mg5 = new MatchGame(9, "UDEM", "Yale");
-
-//        db.createMatchGame(mg1);
-//        db.createMatchGame(mg2);
-//        db.createMatchGame(mg3);
-//        db.createMatchGame(mg4);
-//        db.createMatchGame(mg5);
 
         for (int i = 0, j = 0; j < 10; i +=2, j++) {
             Team t = new Team(schools[j], persons[i], persons[i+1]);
@@ -102,28 +136,67 @@ public class MainActivity extends AppCompatActivity {
             Player p = new Player(per);
             db.createPlayer(p);
         }
-//        Team t1 = new Team("TEC", "Andrea", "Rebeca");
-//        Team t2 = new Team("CUHK", "Jenna", "James");
-//        Team t3 = new Team("Brown", "Lucy", "Javier");
-//        Team t4 = new Team("ECE", "Laura", "Barbara");
-//        Team t5 = new Team("UDEM", "Paulina", "Carolina");
-//        Team t6 = new Team("Harvard", "Atheena", "James");
-//        Team t7 = new Team("LaSalle", "Renato", "Bruno");
-//        Team t8 = new Team("Stanford", "Shai", "Eli");
-//        Team t9 = new Team("UCLA", "Simone", "Cristy");
-//        Team t10 = new Team("Yale", "Sofia", "Lazaro");
 
-//        db.createTeam(t1);
-//        db.createTeam(t2);
-//        db.createTeam(t3);
-//        db.createTeam(t4);
-//        db.createTeam(t5);
-//        db.createTeam(t6);
-//        db.createTeam(t7);
-//        db.createTeam(t8);
-//        db.createTeam(t9);
-//        db.createTeam(t10);
+        matches = db.getAllMatches();
+    }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        selectedMatch = position;
+        if (selectedMatch > 4) {
+            matchPosition = selectedMatch - 5;
+            localStorage = false;
+        } else {
+            matchPosition = matchGamesId[selectedMatch];
+            localStorage = true;
+        }
+    }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void updateMatches(String[] values) {
+        matches.addAll(Arrays.asList(values));
+    }
+
+    // <----------- ExternalStorage Server functions ----------->
+    private  class MatchServer extends AsyncTask<String, Void, Void> {
+        private String[] values;
+        @Override
+        protected Void doInBackground(String...inputStrings) {
+            getAttribute('a', 0, inputStrings[3], inputStrings);
+            return null;
+        }
+
+        private void getAttribute(char objectType, int matchNum, String attribute, String[] inputStrings) {
+            try {
+                Socket s = new Socket("10.0.2.2", 9876);
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                DataInputStream dis = new DataInputStream((s.getInputStream()));
+                OutputStream out = s.getOutputStream();
+                dos.writeChar(objectType);
+                dos.writeInt(matchNum);
+                dos.writeUTF(attribute);
+                dos.writeBoolean(false);
+                if (attribute.equals("allMatches")) {
+                    values = new String[]{dis.readUTF(), dis.readUTF(),dis.readUTF(),dis.readUTF(),dis.readUTF()};
+                }
+                out.close();
+                s.close();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (values != null) {
+                updateMatches(values );
+            }
+        }
     }
 }

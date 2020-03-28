@@ -16,11 +16,11 @@ public class MatchGame {
 
     public MatchGame(int id, String teamA, String teamB) {
         this.id = id;
-        gameSets0 = -1;
-        gameSets1 = -1;
-        gameSets2 = -1;
-        gameSets3 = -1;
-        gameSets4 = -1;
+        gameSets0 = 2;
+        gameSets1 = 2;
+        gameSets2 = 2;
+        gameSets3 = 2;
+        gameSets4 = 2;
         this.teamAName = teamA;
         this.teamBName = teamB;
     }
